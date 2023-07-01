@@ -36,7 +36,9 @@ swagger = Swagger(app, template=swagger_template, config=swagger_config)
 
 max_features = 5000
 tokenizer = Tokenizer(num_words=max_features, split=' ',lower=True)
-sentiment = ['positive', 'negative', 'neutral']
+# Review: ini bisa dilihat indexnya di EDA & Preprocessing shell ke-4
+# sentiment = ['positive', 'negative', 'neutral']
+sentiment = ['negative', 'neutral', 'positive']
 
 def lowercase(s):
     return s.lower()
@@ -54,11 +56,7 @@ def remove_punctuation(s):
     s = re.sub(r'‚Ä¶', '', s)
     return s
 
-db = sqlite3.connect('database.db', check_same_thread = False)
-q_kamusalay = 'SELECT * FROM kamusalay'
-t_kamusalay = pd.read_sql_query(q_kamusalay, db)
-alay_dict = dict(zip(t_kamusalay['alay'], t_kamusalay['normal']))
-
+# Review: taruh fungsi-fungsi berururtan
 def alay_to_normal(s):
     for word in alay_dict:
         return ' '.join([alay_dict[word] if word in alay_dict else word for word in s.split(' ')])
@@ -68,6 +66,12 @@ def cleansing(sent):
     string = remove_punctuation(string)
     string = alay_to_normal(string)
     return string
+
+# Good
+db = sqlite3.connect('database.db', check_same_thread = False)
+q_kamusalay = 'SELECT * FROM kamusalay'
+t_kamusalay = pd.read_sql_query(q_kamusalay, db)
+alay_dict = dict(zip(t_kamusalay['alay'], t_kamusalay['normal']))
 
 # Load file sequences rnn
 file_rnn = open('RNN/x_pad_sequences.pickle','rb')
@@ -120,10 +124,11 @@ def rnn_file():
     
     result = []
 
+    # Review: disini ambil data uji sampel aja, jangan di looping seluruh data.csv | di test pakai data_test.csv
     for index, row in df.iterrows():
         text = tokenizer.texts_to_sequences([(row['text_clean'])])
         guess = pad_sequences(text, maxlen=feature_file_from_rnn.shape[1])
-        prediction = model_file_from_rnn.predict(guess)
+        prediction = model_file_from_lstm.predict(guess)
         polarity = np.argmax(prediction[0])
         get_sentiment = sentiment[polarity]
         result.append(get_sentiment)
@@ -140,7 +145,6 @@ def rnn_file():
     }
     response_data = jsonify(json_response)
     return response_data
-
 
 # Endpoint LSTM teks
 @swag_from('docs/LSTM_text.yml',methods=['POST'])
@@ -180,6 +184,7 @@ def lstm_file():
     
     result = []
 
+    # Review: disini ambil data uji sampel aja, jangan di looping seluruh data.csv | di test pakai data_test.csv
     for index, row in df.iterrows():
         text = tokenizer.texts_to_sequences([(row['text_clean'])])
         guess = pad_sequences(text, maxlen=feature_file_from_lstm.shape[1])
