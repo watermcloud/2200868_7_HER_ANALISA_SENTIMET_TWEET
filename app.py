@@ -36,7 +36,7 @@ swagger = Swagger(app, template=swagger_template, config=swagger_config)
 
 max_features = 5000
 tokenizer = Tokenizer(num_words=max_features, split=' ',lower=True)
-sentiment = ['negative','neutral','positive']
+sentiment = ['positive', 'negative', 'neutral']
 
 def lowercase(s):
     return s.lower()
@@ -54,11 +54,7 @@ def remove_punctuation(s):
     s = re.sub(r'‚Ä¶', '', s)
     return s
 
-db = sqlite3.connect('database.db', check_same_thread = False)
-q_kamusalay = 'SELECT * FROM kamusalay'
-t_kamusalay = pd.read_sql_query(q_kamusalay, db)
-alay_dict = dict(zip(t_kamusalay['alay'], t_kamusalay['normal']))
-
+# Review: taruh fungsi-fungsi berururtan
 def alay_to_normal(s):
     for word in alay_dict:
         return ' '.join([alay_dict[word] if word in alay_dict else word for word in s.split(' ')])
@@ -68,6 +64,12 @@ def cleansing(sent):
     string = remove_punctuation(string)
     string = alay_to_normal(string)
     return string
+
+# Good
+db = sqlite3.connect('database.db', check_same_thread = False)
+q_kamusalay = 'SELECT * FROM kamusalay'
+t_kamusalay = pd.read_sql_query(q_kamusalay, db)
+alay_dict = dict(zip(t_kamusalay['alay'], t_kamusalay['normal']))
 
 # Load file sequences rnn
 file_rnn = open('RNN/x_pad_sequences.pickle','rb')
@@ -120,10 +122,11 @@ def rnn_file():
     
     result = []
 
+    # Review: disini ambil data uji sampel aja, jangan di looping seluruh data.csv | di test pakai data_test.csv
     for index, row in df.iterrows():
         text = tokenizer.texts_to_sequences([(row['text_clean'])])
-        guess = pad_sequences(text, maxlen=feature_file_from_lstm.shape[1])
-        prediction = model_file_from_lstm.predict(guess)
+        guess = pad_sequences(text, maxlen=feature_file_from_rnn.shape[1])
+        prediction = model_file_from_rnn.predict(guess)
         polarity = np.argmax(prediction[0])
         get_sentiment = sentiment[polarity]
         result.append(get_sentiment)
@@ -179,6 +182,7 @@ def lstm_file():
     
     result = []
 
+    # Review: disini ambil data uji sampel aja, jangan di looping seluruh data.csv | di test pakai data_test.csv
     for index, row in df.iterrows():
         text = tokenizer.texts_to_sequences([(row['text_clean'])])
         guess = pad_sequences(text, maxlen=feature_file_from_lstm.shape[1])
