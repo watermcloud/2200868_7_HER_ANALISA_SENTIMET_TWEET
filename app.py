@@ -36,7 +36,7 @@ swagger = Swagger(app, template=swagger_template, config=swagger_config)
 
 max_features = 5000
 tokenizer = Tokenizer(num_words=max_features, split=' ',lower=True)
-sentiment = ['positive', 'negative', 'neutral']
+sentiment = ['negative', 'neutral', 'positive']
 
 def lowercase(s):
     return s.lower()
