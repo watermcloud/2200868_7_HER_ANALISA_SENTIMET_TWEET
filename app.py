@@ -36,7 +36,7 @@ swagger = Swagger(app, template=swagger_template, config=swagger_config)
 
 max_features = 5000
 tokenizer = Tokenizer(num_words=max_features, split=' ',lower=True)
-sentiment = ['positive', 'negative', 'neutral']
+sentiment = ['negative','neutral','positive']
 
 def lowercase(s):
     return s.lower()
@@ -83,8 +83,8 @@ model_file_from_rnn = load_model('RNN/model.h5')
 model_file_from_lstm = load_model('LSTM/model.h5')
 
 # Endpoint RNN teks
-@swag_from('docs/rnn_text.yml',methods=['POST'])
-@app.route('/rnn_text',methods=['POST'])
+@swag_from('docs/RNN_text.yml',methods=['POST'])
+@app.route('/RNN_text',methods=['POST'])
 def rnn_text():
 
     original_text = request.form.get('text')
@@ -110,8 +110,8 @@ def rnn_text():
     return response_data
 
 # Endpoint rnn file
-@swag_from('docs/rnn_file.yml',methods=['POST'])
-@app.route('/rnn_file',methods=['POST'])
+@swag_from('docs/RNN_file.yml',methods=['POST'])
+@app.route('/RNN_file',methods=['POST'])
 def rnn_file():
     file = request.files["upload_file"]
     df = (pd.read_csv(file, encoding="latin-1"))
@@ -122,8 +122,8 @@ def rnn_file():
 
     for index, row in df.iterrows():
         text = tokenizer.texts_to_sequences([(row['text_clean'])])
-        guess = pad_sequences(text, maxlen=feature_file_from_rnn.shape[1])
-        prediction = model_file_from_rnn.predict(guess)
+        guess = pad_sequences(text, maxlen=feature_file_from_lstm.shape[1])
+        prediction = model_file_from_lstm.predict(guess)
         polarity = np.argmax(prediction[0])
         get_sentiment = sentiment[polarity]
         result.append(get_sentiment)
@@ -132,7 +132,7 @@ def rnn_file():
 
     json_response = {
         'status_code' : 200,
-        'description' : "Result of Sentiment Analysis using RNN",
+        'description' : "Result of Sentiment Analysis using LSTM",
         'data' : {
             'text' : original,
             'sentiment' : result
@@ -140,7 +140,6 @@ def rnn_file():
     }
     response_data = jsonify(json_response)
     return response_data
-
 
 # Endpoint LSTM teks
 @swag_from('docs/LSTM_text.yml',methods=['POST'])

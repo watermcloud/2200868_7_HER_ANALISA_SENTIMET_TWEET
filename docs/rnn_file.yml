@@ -1,16 +1,16 @@
 tags:
-  - name: Sentiment Analysis Using RNN
+  - name: Sentiment Analysis using RNN
 get:
   description: File yang akan diproses
 parameters:
-  - name: file
+  - name: upload_file
     in: formData
     required: required
     type: file
 responses:
-    "200":
-      description: Successful response
-    "400":
+    '200':
+      description: Successful Response
+    '400':
       description: Bad Request
-    "500":
+    '500':
       description: Internal Server Error
