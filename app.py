@@ -57,7 +57,6 @@ def remove_punctuation(s):
     s = re.sub(r'‚Ä¶', '', s)
     return s
 
-# Review: taruh fungsi-fungsi berururtan
 def alay_to_normal(s):
     for word in alay_dict:
         return ' '.join([alay_dict[word] if word in alay_dict else word for word in s.split(' ')])
@@ -68,7 +67,6 @@ def cleansing(sent):
     string = alay_to_normal(string)
     return string
 
-# Good
 db = sqlite3.connect('database.db', check_same_thread = False)
 q_kamusalay = 'SELECT * FROM kamusalay'
 t_kamusalay = pd.read_sql_query(q_kamusalay, db)
@@ -125,7 +123,6 @@ def rnn_file():
     
     result = []
 
-    # Review: disini ambil data uji sampel aja, jangan di looping seluruh data.csv | di test pakai data_test.csv
     for index, row in df.iterrows():
         text = tokenizer.texts_to_sequences([(row['text_clean'])])
         guess = pad_sequences(text, maxlen=feature_file_from_rnn.shape[1])
@@ -185,7 +182,6 @@ def lstm_file():
     
     result = []
 
-    # Review: disini ambil data uji sampel aja, jangan di looping seluruh data.csv | di test pakai data_test.csv
     for index, row in df.iterrows():
         text = tokenizer.texts_to_sequences([(row['text_clean'])])
         guess = pad_sequences(text, maxlen=feature_file_from_lstm.shape[1])
